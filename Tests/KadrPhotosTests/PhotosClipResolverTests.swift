@@ -1,6 +1,7 @@
 import Testing
 import Foundation
 import AVFoundation
+import Kadr
 #if canImport(Photos)
 import Photos
 #endif
@@ -118,4 +119,22 @@ struct PhotosClipResolverTests {
         #expect(PhotosClipError.unauthorized == .unauthorized)
         #expect(PhotosClipError.unauthorized != .missingMedia)
     }
+
+    // MARK: - Image resolver overloads (compile-time / signature presence)
+
+    #if canImport(Photos)
+    @Test func imageResolverHasCMTimeAndTimeIntervalOverloads() {
+        // We can't exercise these without a real PHAsset, but we can confirm the two
+        // overloads are present in the public surface — closures of the exact types
+        // type-check below.
+        let cmTimeForm: (PHAsset, CMTime) async throws -> ImageClip = { asset, dur in
+            try await PhotosClipResolver.image(asset: asset, duration: dur)
+        }
+        let intervalForm: (PHAsset, TimeInterval) async throws -> ImageClip = { asset, dur in
+            try await PhotosClipResolver.image(asset: asset, duration: dur)
+        }
+        _ = cmTimeForm  // suppress unused warnings
+        _ = intervalForm
+    }
+    #endif
 }
