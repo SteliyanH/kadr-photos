@@ -4,6 +4,32 @@ All notable changes to KadrPhotos will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/), and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.2.0] - 2026-04-30
+
+Live Photo support. Surfaces both halves of a Live Photo `PHAsset` as kadr clip types — drop the motion as a `VideoClip` (animated story card / boomerang), drop the still as an `ImageClip`, or use both. Pure additive — every v0.1 call site compiles unchanged.
+
+### Added
+
+- **`PhotosClipResolver.livePhotoMotion(asset:progress:)`** — async, returns `VideoClip`. Iterates `PHAssetResource.assetResources(for:)`, picks the `.pairedVideo` resource, writes to a temp `.mov` URL via `PHAssetResourceManager.writeData(for:toFile:options:completionHandler:)`. iCloud download progress reported via `@Sendable (Double) -> Void` callback.
+- **`PhotosClipResolver.livePhotoStill(asset:duration:options:progress:)`** — async, returns `ImageClip`. Symmetric Live-Photo-guarded wrapper around the existing `image()` resolver. `CMTime` and `TimeInterval` overloads.
+- **`PhotosClipError.notALivePhoto`** — new error case thrown by both Live Photo resolvers when `asset.mediaSubtypes.contains(.photoLive)` is false.
+
+### Behavior
+
+- Motion output written to `FileManager.temporaryDirectory + UUID + .mov`. Caller manages the temp file lifecycle thereafter (same contract as v0.1's `video()`).
+- `livePhotoStill` is a thin wrapper — once the guard passes it delegates to `image(asset:duration:options:progress:)` unchanged. Existing `Options` struct (target size, content mode, delivery mode) applies.
+- Live Photos with no `.pairedVideo` resource (rare iCloud / sync edge case) throw `PhotosClipError.missingMedia`.
+
+### Tests
+
+- 6 new tests covering `notALivePhoto` equality, temp URL generation (uniqueness / extension / location), and the Live Photo resolver overload signatures. Suite: 15 → 21.
+
+### Notes
+
+- Combined `livePhoto(asset:)` returning both halves was considered and dropped — consumers want one or the other in practice; if both, two calls.
+- Live Photo motion clips are nominally ~3 seconds; iOS sometimes captures up to ~6 seconds. v0.2 surfaces the full resource duration. Consumers can `.trimmed(to:)` the resulting `VideoClip` if they want a fixed length.
+- The paired video has audio. v0.2 returns it as-is; consumers can `.muted()` if desired.
+
 ## [0.1.0] - 2026-04-30
 
 The first release. Resolves video and image `PHAsset`s into kadr's `VideoClip` / `ImageClip` types, with iCloud download progress reporting and typed errors. Adapter package consuming kadr v0.9.2 — kadr core deliberately avoids the `Photos` / `PhotosUI` frameworks; this package handles the bridging.
