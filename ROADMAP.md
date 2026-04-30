@@ -25,12 +25,18 @@ Live Photo support. Both halves of a Live Photo `PHAsset` surface as kadr clip t
 - `PhotosClipResolver.livePhotoStill(asset:duration:options:progress:)` — Live-Photo-guarded wrapper around the existing `image()` resolver. CMTime + TimeInterval overloads.
 - New `PhotosClipError.notALivePhoto` for assets where `mediaSubtypes.contains(.photoLive)` is false.
 
-## v0.3.0+ — PhotosUI picker integration *(planned)*
+## v0.3.0 — PhotoPicker SwiftUI wrapper ✓ shipped
 
-`PHPickerViewController` SwiftUI wrapper that returns directly into kadr clip types — bypasses the `PHAsset` round-trip for the common "user picks N items, build a video" flow.
+Cross-platform SwiftUI wrapper around `PHPickerViewController`. Returns directly into kadr clip types, bypassing the manual `PHAsset` round-trip for the common "user picks N items, build a video" flow.
 
-- `PhotoPicker(selection: Binding<[PHPickerResult]>) -> View`
-- Convenience `Video.fromPhotoPicker(_:duration:)` builder
+- `PhotoPicker(selection:configuration:)` SwiftUI view (UIKit + AppKit branches)
+- `PhotoPickerResult` value type with `@MainActor resolveAsset() -> PHAsset?`
+- `PhotoPicker.Configuration` + `Filter` + `AssetRepresentationMode`
+- `PhotosClipResolver.clip(from:)` + `clips(from:)` — dispatch on `mediaType`, return `any Clip`
+
+## v0.4.0 — Metadata + overlay helpers *(planned)*
+
+Surface PHAsset metadata on resolved clips (creation date, location, EXIF for image kind), plus thin helpers that turn a PHAsset directly into an `ImageOverlay` / `StickerOverlay` — useful for "logo from Photos" and "watermark from Photos" workflows.
 
 ## Compatibility track record
 
@@ -38,7 +44,8 @@ Live Photo support. Both halves of a Live Photo `PHAsset` surface as kadr clip t
 |---|---|
 | 0.1.0 | ≥ 0.9.2 |
 | 0.2.0 | ≥ 0.9.2 |
-| 0.3.0+ *(planned)* | ≥ 0.9.2 |
+| 0.3.0 | ≥ 0.9.2 |
+| 0.4.0+ *(planned)* | ≥ 0.9.2 |
 
 ## Contributing
 
