@@ -189,3 +189,105 @@ Target test count for v0.1: ~15 (unit; pure helpers).
 - **Image format preservation.** PHImageManager always returns a decoded `UIImage`/`NSImage`. Consumers wanting the original HEIC/PNG bytes need a different path — out of v0.1 scope.
 - **Burst / Slo-mo / Time-lapse subtypes.** PHAsset's `mediaSubtypes` distinguishes these. v0.1 treats them as plain video assets — `mediaSubtype` info isn't surfaced. Revisit if anyone needs it.
 - **Test seam shape.** A protocol-based PHImageManager wrapper would let us unit-test without the framework, but it's a meaningful surface area cost. Decision: defer; rely on integration testing in the example app for v0.1.
+
+## v0.2.0 design — Live Photo
+
+A Live Photo is a `PHAsset` of `mediaType == .image` with `mediaSubtypes.contains(.photoLive)`. It packages a still image + a paired ~3-second motion video. v0.2 surfaces both halves as kadr clip types so consumers can pick: drop the motion as a `VideoClip`, drop the still as an `ImageClip`, or use both.
+
+### Problem
+
+v0.1's `PhotosClipResolver.image(asset:)` works on Live Photos already (they're `mediaType == .image`), but it only returns the still half — the motion is silently dropped. Apps that want to show the motion ("animated photo card", "story-style reel of recent Live Photos") have to drop down to `PHAssetResource` directly. This adapter should hide that.
+
+### Scope lock
+
+In scope:
+- **`PhotosClipResolver.livePhotoMotion(asset:progress:)`** — async, returns `VideoClip`. Iterates `PHAssetResource.assetResources(for:)`, finds the `.pairedVideo` resource, writes it via `PHAssetResourceManager.writeData(for:toFile:options:completionHandler:)` to a temp `.mov` URL, wraps in `VideoClip`.
+- **`PhotosClipResolver.livePhotoStill(asset:duration:options:progress:)`** — async, returns `ImageClip`. Thin wrapper over `image(asset:duration:options:progress:)` that enforces the Live-Photo guard. Symmetric with `livePhotoMotion`.
+- **Live Photo guard** — both functions check `asset.mediaSubtypes.contains(.photoLive)` and throw a new `PhotosClipError.notALivePhoto` if absent.
+- **iCloud progress reporting** — `PHAssetResourceRequestOptions.progressHandler` for motion; existing `PHImageRequestOptions.progressHandler` for still.
+
+Out of scope (v0.3+ or wishlist):
+- **Combined `livePhoto(asset:)` returning both halves** — possible (`(motion: VideoClip, still: ImageClip)` tuple) but rarely useful in practice; consumers either want the motion (animated card) or the still (regular photo). Skip for now.
+- **`PHLivePhoto` SwiftUI view bridge** — that's a UI concern, belongs in `kadr-ui` not here.
+- **Trimming the motion** — Live Photo motion clips are always ~3 seconds. Consumers can `.trimmed(to:)` the resulting `VideoClip` themselves.
+
+### API examples
+
+```swift
+import Kadr
+import KadrPhotos
+import Photos
+
+// Motion half — animated story card
+let clip = try await PhotosClipResolver.livePhotoMotion(asset: livePhotoAsset)
+let video = Video {
+    clip
+    clip.reversed()  // boomerang effect
+}
+
+// Still half — explicit Live-Photo guard
+let still = try await PhotosClipResolver.livePhotoStill(asset: livePhotoAsset, duration: 3.0)
+```
+
+### Public surface sketch
+
+```swift
+extension PhotosClipResolver {
+    public static func livePhotoMotion(
+        asset: PHAsset,
+        progress: (@Sendable (Double) -> Void)? = nil
+    ) async throws -> sending VideoClip
+
+    public static func livePhotoStill(
+        asset: PHAsset,
+        duration: CMTime,
+        options: Options = .default,
+        progress: (@Sendable (Double) -> Void)? = nil
+    ) async throws -> sending ImageClip
+
+    // TimeInterval overload
+    public static func livePhotoStill(
+        asset: PHAsset,
+        duration: TimeInterval,
+        options: Options = .default,
+        progress: (@Sendable (Double) -> Void)? = nil
+    ) async throws -> sending ImageClip
+}
+
+extension PhotosClipError {
+    /// The asset isn't a Live Photo (`mediaSubtypes.contains(.photoLive)` is false).
+    /// Added in v0.2.
+    case notALivePhoto
+}
+```
+
+### Engine notes
+
+- **Resource selection.** `PHAssetResource.assetResources(for: asset)` returns multiple resources for a Live Photo. We pick the one with `type == .pairedVideo`. If absent, throw `.missingMedia` (the asset claims to be a Live Photo but the motion resource is gone — likely an iCloud / sync edge case).
+- **Network access.** `PHAssetResourceRequestOptions().isNetworkAccessAllowed = true` so iCloud-only Live Photos download on demand. Mirrors v0.1's video / image resolver behavior.
+- **Output location.** `FileManager.temporaryDirectory + UUID + .mov`. Caller manages the temp file lifecycle thereafter (same contract as v0.1's video resolver).
+- **Sendable.** Reuses the v0.1 `ContinuationBox` and `ExportSessionCarrier` patterns. The `PHAssetResource` and result `URL` cross actor boundaries; we wrap in a small `URLCarrier` for clarity.
+
+### Tier breakdown
+
+- **Tier 1** — `livePhotoMotion(asset:)` + `livePhotoStill(asset:duration:)` + `PhotosClipError.notALivePhoto`. ~150 LOC + tests.
+- **Tier 2** — Release prep + ship as **v0.2.0**. CHANGELOG, README polish, develop → main.
+
+### Test strategy
+
+PHAsset-backed paths still can't be unit-tested without a real photo library; the bulk lives in pure helpers and integration testing.
+
+- **Pure helpers** — `notALivePhoto` error equality / payload, the `PhotosMediaSubtype` re-export bridge if added, temp `.mov` URL generation (uniqueness / extension / location).
+- **Live-Photo guard** — synthesize a minimal mock-PHAsset stand-in only if a clean test seam emerges; otherwise document the guard via integration testing.
+
+Target test count for v0.2: ~5 net new (mostly pure-helper additions).
+
+### Compatibility
+
+- KadrPhotos 0.2.0 still requires kadr ≥ 0.9.2.
+- Pure additive — every v0.1 call site compiles unchanged.
+
+### Open questions (track in PRs, not blocking RFC merge)
+
+- **Motion duration cap.** Live Photo motion is nominally 3 seconds but iOS sometimes captures up to ~6 seconds. We surface the full resource duration; consumers trim if they want a fixed length.
+- **Audio in Live Photo motion.** The paired video does have audio. v0.2 returns it as-is — consumers can `.muted()` if desired.
