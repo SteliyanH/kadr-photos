@@ -180,7 +180,7 @@ private struct ExportSessionCarrier: @unchecked Sendable {
 /// Wraps a `CheckedContinuation` so callers can resume from the PHImageManager result
 /// handler — which Photos may invoke more than once for the opportunistic delivery
 /// mode. We only honor the first resume; subsequent calls are dropped.
-private final class ContinuationBox<T>: @unchecked Sendable {
+internal final class ContinuationBox<T>: @unchecked Sendable {
     private let lock = NSLock()
     private var continuation: CheckedContinuation<T, Error>?
 
