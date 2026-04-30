@@ -26,6 +26,12 @@ public enum PhotosClipError: Error, Equatable {
     /// `AVAssetExportSession` failed to produce the video clip's URL. Typically a
     /// preset-incompatibility or disk-space issue.
     case videoExportFailed(localizedDescription: String)
+
+    /// The asset isn't a Live Photo (`mediaSubtypes.contains(.photoLive)` is false).
+    /// Thrown by ``PhotosClipResolver/livePhotoMotion(asset:progress:)`` and
+    /// ``PhotosClipResolver/livePhotoStill(asset:duration:options:progress:)``.
+    /// Added in v0.2.
+    case notALivePhoto
 }
 
 /// High-level kind of a `PHAsset` — re-exported so consumers don't have to import
