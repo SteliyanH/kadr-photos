@@ -34,9 +34,13 @@ Cross-platform SwiftUI wrapper around `PHPickerViewController`. Returns directly
 - `PhotoPicker.Configuration` + `Filter` + `AssetRepresentationMode`
 - `PhotosClipResolver.clip(from:)` + `clips(from:)` — dispatch on `mediaType`, return `any Clip`
 
-## v0.4.0 — Metadata + overlay helpers *(planned)*
+## v0.4.0 — Metadata + overlay helpers ✓ shipped
 
-Surface PHAsset metadata on resolved clips (creation date, location, EXIF for image kind), plus thin helpers that turn a PHAsset directly into an `ImageOverlay` / `StickerOverlay` — useful for "logo from Photos" and "watermark from Photos" workflows.
+PHAsset metadata snapshot + thin helpers that bridge a PHAsset directly to kadr's overlay types. Closes the v0.x cycle — kadr-photos is now feature-complete for the originally-scoped surface.
+
+- `PhotoAssetMetadata` value type + `PhotoAssetSubtypes` OptionSet (kadr-side mirror of `PHAssetMediaSubtype`)
+- `PhotosClipResolver.metadata(of:)` — synchronous PHAsset property read
+- `PhotosClipResolver.imageOverlay(asset:)` + `stickerOverlay(asset:)` — bridges to `Kadr.ImageOverlay` / `StickerOverlay`
 
 ## Compatibility track record
 
@@ -45,7 +49,7 @@ Surface PHAsset metadata on resolved clips (creation date, location, EXIF for im
 | 0.1.0 | ≥ 0.9.2 |
 | 0.2.0 | ≥ 0.9.2 |
 | 0.3.0 | ≥ 0.9.2 |
-| 0.4.0+ *(planned)* | ≥ 0.9.2 |
+| 0.4.0 | ≥ 0.9.2 |
 
 ## Contributing
 

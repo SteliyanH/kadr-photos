@@ -4,6 +4,34 @@ All notable changes to KadrPhotos will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/), and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.4.0] - 2026-04-30
+
+PHAsset metadata + direct overlay helpers. Closes the v0.x cycle. Pure additive — every v0.3 call site compiles unchanged.
+
+### Added
+
+- **`PhotoAssetMetadata`** value type — snapshot of PHAsset properties: `creationDate`, `modificationDate`, `location` (CLLocation), `pixelSize`, `videoDuration`, `subtypes`, `isFavorite`, `burstIdentifier`, `mediaKind`. `Equatable` + `@unchecked Sendable` (CLLocation is thread-safe but not Swift-Sendable).
+- **`PhotoAssetSubtypes`** OptionSet — kadr-side mirror of `PHAssetMediaSubtype`. Cases: `.livePhoto`, `.highFrameRate`, `.timelapse`, `.panorama`, `.hdr`, `.screenshot`, `.depthEffect`, `.cinematic`, `.streamed`. `.spatial` reserved for forward compat.
+- **`PhotosClipResolver.metadata(of:)`** — synchronous PHAsset property read; no iCloud round-trip.
+- **`PhotosClipResolver.imageOverlay(asset:position:size:anchor:opacity:options:progress:)`** — async, resolves a PHAsset's still half and produces a `Kadr.ImageOverlay` ready for `Video.overlay(_:)`.
+- **`PhotosClipResolver.stickerOverlay(asset:position:size:anchor:opacity:rotation:shadow:options:progress:)`** — same shape but produces a `StickerOverlay` (adds rotation + shadow modifiers).
+
+### Behavior
+
+- `metadata(of:)` is synchronous — no `PHImageManager` request. PHAsset read-only properties only.
+- `PhotoAssetSubtypes.from(PHAssetMediaSubtype)` exposed for the bridge mapping.
+- The overlay helpers reuse the existing `image()` resolver path — they just chain kadr's overlay modifiers on top of the resulting `PlatformImage`.
+- Live Photo asset → still half on the overlay path. Live Photo motion as overlay isn't a kadr surface (overlays are static).
+
+### Tests
+
+- 21 new tests covering `PhotoAssetSubtypes` shape (empty / union / equality / 9 individual flag bridges from `PHAssetMediaSubtype` / multi-flag bridge), `PhotoAssetMetadata` equality semantics (creationDate / location coordinates / favorite), and overlay helper signatures (5 compile-time presence checks). Suite: 36 → 57.
+
+### Notes
+
+- EXIF preservation (`f-stop`, `exposureTime`, etc.), HEIC depth maps, and AVMetadata video exposure are explicit non-goals for v0.4. The CGImageSource plumbing for EXIF would justify ~150 LOC for a niche surface; defer until a real consumer asks.
+- `.spatial` (Apple's `PHAssetMediaSubtype.spatialMedia`) ships in iOS 18+ / visionOS 2+; we keep the iOS 16 deployment floor and don't bridge it yet. The `.spatial` flag exists in `PhotoAssetSubtypes` for forward compat.
+
 ## [0.3.0] - 2026-04-30
 
 `PHPickerViewController` SwiftUI wrapper. The PhotosUI bridge — wraps the system picker as a cross-platform SwiftUI `View` that returns directly into kadr clip types, bypassing the manual `PHAsset` round-trip.
