@@ -37,6 +37,10 @@ let video = Video {
 | `PhotosClipResolver.image(asset:duration:options:progress:)` | Resolve an image `PHAsset` to an `ImageClip` |
 | `PhotosClipResolver.livePhotoMotion(asset:progress:)` | Extract the paired-video half of a Live Photo as a `VideoClip` |
 | `PhotosClipResolver.livePhotoStill(asset:duration:options:progress:)` | Extract the still half of a Live Photo as an `ImageClip` (Live-Photo-guarded wrapper around `image()`) |
+| `PhotoPicker(selection:configuration:)` *(v0.3)* | SwiftUI wrapper around `PHPickerViewController` |
+| `PhotoPickerResult` *(v0.3)* | Wraps an `assetIdentifier`; `@MainActor resolveAsset()` returns the `PHAsset` |
+| `PhotosClipResolver.clip(from:imageDuration:options:progress:)` *(v0.3)* | Resolve a `PhotoPickerResult` to `any Clip` (dispatches on `mediaType`) |
+| `PhotosClipResolver.clips(from:imageDuration:options:progress:)` *(v0.3)* | Array convenience for batch resolution |
 | `PhotosClipError` | Typed errors for permissions, missing media, iCloud failures, non-Live-Photo asset |
 
 ## Roadmap

@@ -4,6 +4,37 @@ All notable changes to KadrPhotos will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/), and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.3.0] - 2026-04-30
+
+`PHPickerViewController` SwiftUI wrapper. The PhotosUI bridge — wraps the system picker as a cross-platform SwiftUI `View` that returns directly into kadr clip types, bypassing the manual `PHAsset` round-trip.
+
+### Added
+
+- **`PhotoPicker(selection:configuration:)`** SwiftUI view. `UIViewControllerRepresentable` on iOS / visionOS, `NSViewControllerRepresentable` on macOS.
+- **`PhotoPickerResult`** value type — `Sendable` + `Equatable` + `Identifiable`. Wraps the `assetIdentifier` returned by `PHPickerResult`; `@MainActor resolveAsset() -> PHAsset?` resolves on demand.
+- **`PhotoPicker.Configuration`** — `selectionLimit` (`0` = unlimited), `filter`, `preferredAssetRepresentationMode`. Sensible defaults.
+- **`PhotoPicker.Filter`** (`.images` / `.videos` / `.livePhotos` / `.any`) with `phFilter` bridge to `PHPickerFilter`.
+- **`PhotoPicker.AssetRepresentationMode`** (`.automatic` / `.current` / `.compatible`) with `phMode` bridge to `PHPickerConfiguration.AssetRepresentationMode`.
+- **`PhotosClipResolver.clip(from:imageDuration:options:progress:)`** — convenience that resolves a `PhotoPickerResult` to `any Clip` by inspecting `PHAsset.mediaType`. `CMTime` and `TimeInterval` overloads.
+- **`PhotosClipResolver.clips(from:imageDuration:options:progress:)`** — array overload; resolves serially in declaration order. `CMTime` and `TimeInterval` overloads.
+
+### Behavior
+
+- `PHPickerConfiguration` is built with `photoLibrary: .shared()` so `assetIdentifier` round-trips correctly through `PHAsset.fetchAssets`.
+- The picker doesn't require library authorization to display — but `PhotoPickerResult.resolveAsset()` and the downstream `clip(from:)` do (same v0.1 contract). Calling `PHPhotoLibrary.requestAuthorization` remains the consuming app's responsibility.
+- `clip(from:)` dispatches on `PHAsset.mediaType`: `.video` → `video()`, `.image` → `image()`, other (`.audio` / `.unknown`) throws `PhotosClipError.wrongMediaType`.
+- For Live Photo motion, call `livePhotoMotion(asset:)` directly — `clip(from:)` dispatches on `mediaType` (which is `.image` for Live Photos) and returns the still half.
+- Asset resolution happens on `MainActor` (where `PHAsset.fetchAssets` is safe); the result is wrapped in an internal `@unchecked Sendable` carrier and handed to the non-isolated downstream resolvers.
+
+### Tests
+
+- 15 new tests covering `PhotoPickerResult` identity / equality, `Configuration` defaults / equality, `Filter` / `AssetRepresentationMode` enum bridges, `makePHConfiguration` mapping, `mapResults` empty input, and `clip(from:)` / `clips(from:)` overload signatures + empty-array fast path. Suite: 21 → 36.
+
+### Notes
+
+- Live picker UX is not unit-testable (PHPickerViewController needs a real window). Manual integration testing in a host app remains the source of truth for the picker's runtime behavior.
+- `clips(from:)` reports per-asset progress via the `progress` callback on each asset. A merged "67% across all 5" callback would need an additional API; deferred until consumers ask.
+
 ## [0.2.0] - 2026-04-30
 
 Live Photo support. Surfaces both halves of a Live Photo `PHAsset` as kadr clip types — drop the motion as a `VideoClip` (animated story card / boomerang), drop the still as an `ImageClip`, or use both. Pure additive — every v0.1 call site compiles unchanged.
