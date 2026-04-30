@@ -17,12 +17,13 @@ Depends on **kadr v0.9.2** (uses `VideoClip` + `ImageClip`).
 
 Platforms: iOS 16+, macOS 13+, visionOS 1+. **tvOS excluded** — Photos framework is not available on tvOS.
 
-## v0.2.0 — Live Photo *(planned)*
+## v0.2.0 — Live Photo ✓ shipped
 
-Live Photo support. A Live Photo is a still + ~3-second motion pair; the adapter exposes both halves so consumers can pick.
+Live Photo support. Both halves of a Live Photo `PHAsset` surface as kadr clip types.
 
-- `PhotosClipResolver.livePhotoMotion(asset:options:progress:)` — extract the motion half as a `VideoClip`.
-- `PhotosClipResolver.livePhotoStill(asset:duration:options:progress:)` — extract the still as an `ImageClip` (alias of `image(asset:)` for clarity).
+- `PhotosClipResolver.livePhotoMotion(asset:progress:)` — extract the paired video as `VideoClip` via `PHAssetResource` + `PHAssetResourceManager.writeData`.
+- `PhotosClipResolver.livePhotoStill(asset:duration:options:progress:)` — Live-Photo-guarded wrapper around the existing `image()` resolver. CMTime + TimeInterval overloads.
+- New `PhotosClipError.notALivePhoto` for assets where `mediaSubtypes.contains(.photoLive)` is false.
 
 ## v0.3.0+ — PhotosUI picker integration *(planned)*
 
@@ -36,7 +37,8 @@ Live Photo support. A Live Photo is a still + ~3-second motion pair; the adapter
 | KadrPhotos | Requires Kadr |
 |---|---|
 | 0.1.0 | ≥ 0.9.2 |
-| 0.2.0+ *(planned)* | ≥ 0.9.2 |
+| 0.2.0 | ≥ 0.9.2 |
+| 0.3.0+ *(planned)* | ≥ 0.9.2 |
 
 ## Contributing
 
