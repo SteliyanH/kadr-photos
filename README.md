@@ -41,6 +41,11 @@ let video = Video {
 | `PhotoPickerResult` *(v0.3)* | Wraps an `assetIdentifier`; `@MainActor resolveAsset()` returns the `PHAsset` |
 | `PhotosClipResolver.clip(from:imageDuration:options:progress:)` *(v0.3)* | Resolve a `PhotoPickerResult` to `any Clip` (dispatches on `mediaType`) |
 | `PhotosClipResolver.clips(from:imageDuration:options:progress:)` *(v0.3)* | Array convenience for batch resolution |
+| `PhotosClipResolver.metadata(of:)` *(v0.4)* | Synchronous PHAsset property snapshot — `PhotoAssetMetadata` |
+| `PhotoAssetMetadata` *(v0.4)* | creationDate / location / pixelSize / subtypes / etc. |
+| `PhotoAssetSubtypes` *(v0.4)* | OptionSet — `.livePhoto` / `.panorama` / `.hdr` / `.screenshot` / etc. |
+| `PhotosClipResolver.imageOverlay(asset:position:size:...)` *(v0.4)* | PHAsset → `Kadr.ImageOverlay` |
+| `PhotosClipResolver.stickerOverlay(asset:position:size:rotation:shadow:...)` *(v0.4)* | PHAsset → `Kadr.StickerOverlay` |
 | `PhotosClipError` | Typed errors for permissions, missing media, iCloud failures, non-Live-Photo asset |
 
 ## Roadmap
