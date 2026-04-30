@@ -4,7 +4,7 @@ This document outlines the planned feature releases for KadrPhotos. Each release
 
 For kadr's roadmap see [kadr/ROADMAP.md](https://github.com/SteliyanH/kadr/blob/main/ROADMAP.md).
 
-## v0.1.0 — Video + image PHAsset resolution *(planned)*
+## v0.1.0 — Video + image PHAsset resolution ✓ shipped
 
 The first release. Resolves `PHAsset` videos and stills into kadr clip types, with iCloud download progress reporting.
 
@@ -35,7 +35,7 @@ Live Photo support. A Live Photo is a still + ~3-second motion pair; the adapter
 
 | KadrPhotos | Requires Kadr |
 |---|---|
-| 0.1.0 *(planned)* | ≥ 0.9.2 |
+| 0.1.0 | ≥ 0.9.2 |
 | 0.2.0+ *(planned)* | ≥ 0.9.2 |
 
 ## Contributing
