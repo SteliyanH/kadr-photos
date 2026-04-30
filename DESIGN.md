@@ -458,3 +458,157 @@ Target test count for v0.3: ~10 new tests.
 - **Unified progress reporting.** `clips(from:)` calls the per-asset `progress` callback once per asset; an aggregate "X of N done" callback would need a wrapper. Skip in v0.3.
 - **Cancellation.** No way to cancel an in-flight `clips(from:)` resolution beyond Task cancellation. The downstream `PhotosClipResolver` calls don't yet check `Task.isCancelled` at intermediate points; v0.3 inherits whatever cancellation behavior the v0.1 / v0.2 resolvers have.
 - **Live Photo dispatch.** `clip(from:)` dispatches on `PHAsset.mediaType` (which is `.image` for Live Photos). Consumers wanting the motion half should call `livePhotoMotion(asset:)` directly. Or — open question — should `clip(from:)` grow a `preferLivePhotoMotion: Bool = false` flag? Defer until demand.
+
+## v0.4.0 design — Metadata + overlay helpers
+
+The fourth and final release of the v0.x cycle. Surfaces PHAsset metadata (creation date, location, pixel size, mediaSubtypes) on a kadr-side value type, plus thin helpers that turn a PHAsset directly into an `ImageOverlay` or `StickerOverlay` for "logo from Photos" / "watermark from Photos" workflows.
+
+### Problem
+
+Two adjacent gaps in the v0.1–v0.3 surface:
+
+1. **Metadata.** PHAsset has rich properties (creation date, GPS location, pixel size, media subtypes like `.photoLive` / `.panorama` / `.depthEffect`). The v0.1 resolvers ignore all of it — consumers wanting "captioning with the photo's date" or "geo-tagged story cards" have to drop down to PHAsset directly. v0.4 surfaces a kadr-side `PhotoAssetMetadata` snapshot.
+2. **Overlay helpers.** A common workflow is "user picks an image from Photos → use it as a watermark / logo / sticker." Today the consumer has to call `image()` to get an `ImageClip`, then read `clip.image` and re-wrap in `ImageOverlay(_:)` / `StickerOverlay(_:)` themselves. Two-line helper, but worth shipping.
+
+### Scope lock
+
+In scope:
+- **`PhotoAssetMetadata`** value type — `creationDate` / `modificationDate` / `location` / `pixelSize` / `videoDuration` / `subtypes` / `isFavorite` / `burstIdentifier`. `Sendable`, `Equatable`. CoreLocation already a transitive dep through Photos.
+- **`PhotoAssetSubtypes`** OptionSet — kadr-side mirror of `PHAssetMediaSubtype`. Cases: `.livePhoto`, `.highFrameRate`, `.timelapse`, `.panorama`, `.hdr`, `.screenshot`, `.depthEffect`, `.cinematic`, `.spatial`, `.streamed`. (All available on iOS 16+ except some that require iOS 17+; gated with `@available` per case where needed.)
+- **`PhotosClipResolver.metadata(of asset: PHAsset) -> PhotoAssetMetadata`** — synchronous snapshot. Reads PHAsset properties directly; no iCloud round-trip.
+- **`PhotosClipResolver.imageOverlay(asset:position:size:anchor:opacity:options:progress:)`** — async, returns `Kadr.ImageOverlay` ready to hand to `Video.overlay(_:)`.
+- **`PhotosClipResolver.stickerOverlay(asset:position:size:anchor:opacity:rotation:shadow:options:progress:)`** — async, returns `Kadr.StickerOverlay`. Adds rotation + shadow vs. ImageOverlay (matches `Kadr.StickerOverlay`'s richer init).
+
+Out of scope (v0.4.x or rejected):
+- **EXIF preservation** — `f-stop`, `exposureTime`, `iso`, `focalLength`, etc. Reading these requires `PHImageManager.requestImageDataAndOrientation` + `CGImageSource` + `CGImageSourceCopyPropertiesAtIndex` plumbing. ~150 LOC for a niche surface; defer until a real consumer asks.
+- **HEIC depth maps** — `kCGImageAuxiliaryDataTypeDepth` extraction. Specialty; out of scope.
+- **Video AVMetadata exposure** — surfaces `creationDate` from the asset itself rather than PHAsset (different code path); covered for stills here, defer for video to a follow-up.
+- **`PhotoAssetMetadata` round-trip into `Caption`-bound metadata** — interesting (caption a video with the photo's GPS), but a niche overlap; consumers can hand-build it.
+
+### API examples
+
+```swift
+import Kadr
+import KadrPhotos
+import Photos
+
+// 1. Snapshot metadata synchronously.
+let meta = PhotosClipResolver.metadata(of: asset)
+print("Captured", meta.creationDate ?? "unknown", "at", meta.location ?? "no GPS")
+
+// 2. Logo from Photos as a static ImageOverlay.
+let logo = try await PhotosClipResolver.imageOverlay(
+    asset: logoAsset,
+    position: .topRight,
+    size: .normalized(width: 0.15, height: 0.15),
+    anchor: .topRight
+)
+let video = Video {
+    VideoClip(url: footage)
+}
+.overlay(logo)
+
+// 3. Sticker with rotation and shadow.
+let sticker = try await PhotosClipResolver.stickerOverlay(
+    asset: stickerAsset,
+    position: .bottomLeft,
+    size: .normalized(width: 0.2, height: 0.2),
+    rotation: -0.15,
+    shadow: .init(color: .black, radius: 8, offset: .init(width: 4, height: 4), opacity: 0.6)
+)
+.overlay(sticker)
+```
+
+### Public surface sketch
+
+```swift
+public struct PhotoAssetMetadata: Sendable, Equatable {
+    public let creationDate: Date?
+    public let modificationDate: Date?
+    public let location: CLLocation?  // requires `import CoreLocation`
+    public let pixelSize: CGSize
+    /// `0` for stills.
+    public let videoDuration: TimeInterval
+    public let subtypes: PhotoAssetSubtypes
+    public let isFavorite: Bool
+    public let burstIdentifier: String?
+    public let mediaKind: PhotosMediaKind
+}
+
+public struct PhotoAssetSubtypes: OptionSet, Sendable, Equatable {
+    public let rawValue: Int
+    public static let livePhoto: PhotoAssetSubtypes
+    public static let highFrameRate: PhotoAssetSubtypes
+    public static let timelapse: PhotoAssetSubtypes
+    public static let panorama: PhotoAssetSubtypes
+    public static let hdr: PhotoAssetSubtypes
+    public static let screenshot: PhotoAssetSubtypes
+    public static let depthEffect: PhotoAssetSubtypes
+    public static let cinematic: PhotoAssetSubtypes
+    public static let spatial: PhotoAssetSubtypes
+    public static let streamed: PhotoAssetSubtypes
+}
+
+extension PhotosClipResolver {
+    public static func metadata(of asset: PHAsset) -> PhotoAssetMetadata
+}
+
+extension PhotosClipResolver {
+    public static func imageOverlay(
+        asset: PHAsset,
+        position: Position = .center,
+        size: Size? = nil,
+        anchor: Anchor = .center,
+        opacity: Double = 1.0,
+        options: Options = .default,
+        progress: (@Sendable (Double) -> Void)? = nil
+    ) async throws -> sending ImageOverlay
+
+    public static func stickerOverlay(
+        asset: PHAsset,
+        position: Position = .center,
+        size: Size? = nil,
+        anchor: Anchor = .center,
+        opacity: Double = 1.0,
+        rotation: Double = 0.0,
+        shadow: StickerOverlay.Shadow? = nil,
+        options: Options = .default,
+        progress: (@Sendable (Double) -> Void)? = nil
+    ) async throws -> sending StickerOverlay
+}
+```
+
+### Engine notes
+
+- **Metadata snapshot.** Pure read of `PHAsset.creationDate`, `modificationDate`, `location`, `pixelWidth`/`pixelHeight`, `duration`, `mediaSubtypes`, `isFavorite`, `burstIdentifier`. Bridges `PHAssetMediaSubtype` → `PhotoAssetSubtypes` via a manual case-by-case mapping (the system enum is `OptionSet`-shaped already; we re-export to avoid forcing consumers to import Photos for this read path).
+- **Overlay path.** Same `PHImageManager.requestImage` flow as v0.1's `image(asset:)` — except the result wraps in `ImageOverlay(_:)` / `StickerOverlay(_:)` instead of `ImageClip(_:duration:)`. Modifiers (`.position`, `.size`, `.anchor`, `.opacity`, `.rotation`, `.shadow`) chain on top before returning.
+- **Live Photo edge case.** `imageOverlay(asset:)` on a Live Photo uses the still half (mediaType = `.image`). For motion-as-overlay there's no kadr surface yet — overlays are static images. Document the limitation.
+
+### Tier breakdown
+
+- **Tier 1** — `PhotoAssetMetadata` + `PhotoAssetSubtypes` + `metadata(of:)`. ~150 LOC + tests.
+- **Tier 2** — `imageOverlay(asset:)` + `stickerOverlay(asset:)`. ~100 LOC + tests.
+- **Tier 3** — Release prep + ship as **v0.4.0**.
+
+### Test strategy
+
+Pure helpers are testable; the resolver paths still need a real photo library and remain in integration testing.
+
+- **`PhotoAssetMetadata`** — equality, default construction.
+- **`PhotoAssetSubtypes`** — OptionSet shape (union, contains, raw values), bridge from `PHAssetMediaSubtype` via a pure helper.
+- **Overlay helper signatures** — compile-time presence checks with closures.
+- **Live PHAsset paths** — manual integration in the example app.
+
+Target test count for v0.4: ~10 new tests.
+
+### Compatibility
+
+- KadrPhotos 0.4.0 still requires kadr ≥ 0.9.2.
+- Pure additive — every v0.3 call site compiles unchanged.
+- Adds `import CoreLocation` to the public surface (`PhotoAssetMetadata.location`). Already a transitive dep through Photos; no new entitlement.
+
+### Open questions (track in PRs, not blocking RFC merge)
+
+- **Whether `metadata(of:)` should be `async`.** It reads PHAsset properties only — no iCloud round-trip — so synchronous is honest. If we discover hidden async behavior on some asset types, revisit.
+- **AVMetadata exposure for video assets.** Photos surfaces *some* of it on PHAsset (creationDate, location); the rest needs `AVAsset` round-trip. Defer.
+- **Multi-asset batch metadata.** `metadata(of: [PHAsset])` -> `[PhotoAssetMetadata]` — trivial map; not adding to the surface.
