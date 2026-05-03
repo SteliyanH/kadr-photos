@@ -50,12 +50,12 @@ let video = Video {
 
 ## Roadmap
 
-See [ROADMAP.md](ROADMAP.md). v0.1.0: video + image PHAsset resolution. v0.2.0: Live Photo support (still + motion as a unit). Later: PhotosUI picker integration.
+See [ROADMAP.md](ROADMAP.md). Shipped: video + image resolution (v0.1), Live Photo (v0.2), PhotosUI `PhotoPicker` (v0.3), metadata + overlay helpers (v0.4), slow-motion preservation + album asset listing (v0.5). Cycle considered feature-complete pending kadr v1.0.
 
 ## Installation
 
 ```swift
-.package(url: "https://github.com/SteliyanH/kadr-photos.git", from: "0.1.0"),
+.package(url: "https://github.com/SteliyanH/kadr-photos.git", from: "0.5.0"),
 ```
 
 Add `KadrPhotos` to your target's dependencies. `Kadr` is pulled in transitively (≥ `0.9.2`).
