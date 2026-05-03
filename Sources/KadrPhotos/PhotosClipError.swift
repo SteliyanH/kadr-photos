@@ -32,6 +32,13 @@ public enum PhotosClipError: Error, Equatable {
     /// ``PhotosClipResolver/livePhotoStill(asset:duration:options:progress:)``.
     /// Added in v0.2.
     case notALivePhoto
+
+    /// The asset isn't a high-frame-rate slow-motion video
+    /// (`mediaSubtypes.contains(.videoHighFrameRate)` is false). Thrown by
+    /// ``PhotosClipResolver/slowMotion(asset:options:progress:)`` and
+    /// ``PhotosClipResolver/videoFrameRate(of:)`` when the caller specifically
+    /// requested slow-motion handling. Added in v0.5.
+    case notSlowMotion
 }
 
 /// High-level kind of a `PHAsset` — re-exported so consumers don't have to import
