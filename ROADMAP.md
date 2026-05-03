@@ -42,6 +42,16 @@ PHAsset metadata snapshot + thin helpers that bridge a PHAsset directly to kadr'
 - `PhotosClipResolver.metadata(of:)` — synchronous PHAsset property read
 - `PhotosClipResolver.imageOverlay(asset:)` + `stickerOverlay(asset:)` — bridges to `Kadr.ImageOverlay` / `StickerOverlay`
 
+## v0.5.0 — Slow-motion + album asset listing ✓ shipped
+
+Two additions from a final value-vs-complexity audit. Pure additive — every v0.4 call site compiles unchanged.
+
+- **`PhotosClipResolver.slowMotion(asset:options:progress:)`** — always overrides `videoExportPreset` to `AVAssetExportPresetPassthrough` so the original 60 / 120 / 240 fps source survives. Throws `PhotosClipError.notSlowMotion` for non-slo-mo assets.
+- **`PhotosClipResolver.videoFrameRate(of:)`** + **`slowMotionSpeed(originalFrameRate:playbackFrameRate:)`** — async frame-rate read + pure speed-multiplier helper for choosing the playback ramp.
+- **`PhotosClipResolver.assets(in: PHAssetCollection, mediaType:)`** + **`smartAlbum(_:)`** — programmatic album listing. (Originally planned as a `PhotoPicker(...assetCollection:)` overload, but `PHPickerConfiguration` doesn't expose album scoping; the listing path is more flexible.)
+
+Cycle considered feature-complete pending kadr v1.0.
+
 ## Compatibility track record
 
 | KadrPhotos | Requires Kadr |
@@ -50,6 +60,7 @@ PHAsset metadata snapshot + thin helpers that bridge a PHAsset directly to kadr'
 | 0.2.0 | ≥ 0.9.2 |
 | 0.3.0 | ≥ 0.9.2 |
 | 0.4.0 | ≥ 0.9.2 |
+| 0.5.0 | ≥ 0.9.2 |
 
 ## Contributing
 

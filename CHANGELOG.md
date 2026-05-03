@@ -4,6 +4,29 @@ All notable changes to KadrPhotos will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/), and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.5.0] - 2026-05-03
+
+Slow-motion video preservation + programmatic album asset listing. Pure additive — every v0.4 call site compiles unchanged. Kadr floor stays at **0.9.2**.
+
+### Added
+
+- **`PhotosClipResolver.slowMotion(asset:options:progress:)`** — async resolver for high-frame-rate slow-motion videos. Always overrides `videoExportPreset` to `AVAssetExportPresetPassthrough` so the original 60 / 120 / 240 fps source frame rate survives the export. Throws ``PhotosClipError/notSlowMotion`` for assets without `videoHighFrameRate` subtype.
+- **`PhotosClipResolver.videoFrameRate(of:)`** — async; loads the underlying `AVAsset` and reads the video track's `nominalFrameRate`. Useful for choosing a slow-mo speed multiplier programmatically.
+- **`PhotosClipResolver.slowMotionSpeed(originalFrameRate:playbackFrameRate:)`** — pure helper for the speed-multiplier divide. Defaults playback to 30 fps; defensive against zero / negative inputs.
+- **`PhotosClipError.notSlowMotion`** — new error case thrown by both slow-mo entry points when the asset lacks the high-frame-rate subtype.
+- **`PhotosClipResolver.assets(in: PHAssetCollection, mediaType:)`** — async lister returning `[PHAsset]` from a specified album in its natural order. Optional `PhotosMediaKind` filter.
+- **`PhotosClipResolver.smartAlbum(_:)`** — synchronous lookup for built-in smart albums by `PHAssetCollectionSubtype` (Slo-mo, Favorites, Recents, Time-lapse, Screenshots, Panoramas, Live Photos, all-Videos, Camera Roll).
+
+### Tests
+
+- 11 new tests across `SlowMotionTests` (9) and `AlbumListingTests` (2). Suite: 57 → 68. PHAsset-dependent paths remain integration-tested in the example app, same pattern as the existing `video(asset:)` resolver.
+
+### Notes
+
+- **Pivot from the original Tier 2 plan**: I'd scoped `PhotoPicker(...assetCollection:)` to filter the picker UI to a specific album, but `PHPickerConfiguration` doesn't expose album scoping in any current Apple SDK. The programmatic listing path is more flexible — consumers can render their own album UI and resolve selected entries through `video()` / `image()` / `clip(from:)`.
+- **iOS slow-motion regions** (the user-defined slow-mo ramp inside Photos.app) aren't honored — the export carries the source's full frame rate; consumers apply their own `clip.speed(curve:)` ramp downstream. Honoring the `PHAssetResource` adjustment metadata is a much bigger surface and isn't on the roadmap.
+- Cycle considered feature-complete pending kadr v1.0.
+
 ## [0.4.0] - 2026-04-30
 
 PHAsset metadata + direct overlay helpers. Closes the v0.x cycle. Pure additive — every v0.3 call site compiles unchanged.
