@@ -52,6 +52,16 @@ Two additions from a final value-vs-complexity audit. Pure additive — every v0
 
 Cycle considered feature-complete pending kadr v1.0.
 
+## v0.6.0 — HDR-aware resolution + iOS 17 picker async sequence *(planned)*
+
+Reopened cycle. v0.5 covered every common PHAsset resolution path (video / image / Live Photo / slow-motion / album listing). v0.6 adds the surfaces that have come up downstream now that real users hit them. All additive — every v0.5 call site compiles unchanged. Three additions:
+
+- **HDR / Dolby Vision asset passthrough.** New `PhotosClipResolver.videoHDRMetadata(of:)` async surfaces the asset's transfer function + color primaries + color matrix without pulling the full media. Pairs with **kadr-pro** (kadr's HDR pipeline is premium); the resolution side stays free so consumers can detect-and-route — "this is HDR" without "this exports HDR." The resolution path itself doesn't perform color-space conversion; that's kadr-pro's job.
+- **iOS 17 `PHPickerViewController` async sequence.** `PhotoPicker` today uses the SwiftUI 16-style closure callback. iOS 17 added `PHPicker.results` as an `AsyncSequence`; expose via a new `PhotoPicker(...iOS17AsyncResults:)` overload that fires when iOS 17 is the deployment floor. The iOS 16 closure path stays for the floor.
+- **Live Photos depth-channel extraction.** iPhone 12+ Live Photos carry a depth map alongside the still + video. New `PhotosClipResolver.depthMap(from:)` async returns a `CVPixelBuffer` (or nil for non-depth assets); consumers can feed it into Vision-side cutout pipelines (kadr-pro), or simpler chroma-key-style filtering (free).
+
+Three tiers + release prep. Pairs with **kadr-reels-studio v0.8.x** (HDR badge in the project list — detect-and-display, no conversion) and **kadr-pro v0.1** (HDR export + Vision-based depth cutout consume these surfaces). Pure resolution expansion — nothing changes for consumers who only need the v0.5 happy path.
+
 ## Compatibility track record
 
 | KadrPhotos | Requires Kadr |
