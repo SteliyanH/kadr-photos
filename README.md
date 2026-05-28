@@ -46,16 +46,21 @@ let video = Video {
 | `PhotoAssetSubtypes` *(v0.4)* | OptionSet — `.livePhoto` / `.panorama` / `.hdr` / `.screenshot` / etc. |
 | `PhotosClipResolver.imageOverlay(asset:position:size:...)` *(v0.4)* | PHAsset → `Kadr.ImageOverlay` |
 | `PhotosClipResolver.stickerOverlay(asset:position:size:rotation:shadow:...)` *(v0.4)* | PHAsset → `Kadr.StickerOverlay` |
+| `PhotosClipResolver.slowMotion(asset:options:progress:)` *(v0.5)* | High-frame-rate-preserving slow-motion video export |
+| `PhotosClipResolver.assets(in:mediaType:)` + `smartAlbum(_:)` *(v0.5)* | Programmatic album asset listing |
+| `PhotosClipResolver.videoHDRMetadata(of:)` *(v0.6)* | Async HDR / Dolby Vision metadata read (`VideoHDRMetadata`) — detect-only, no conversion |
+| `PhotoPicker(configuration:iOS17AsyncResults:)` *(v0.6)* | iOS 17+ overload delivering picks as an `AsyncStream<PhotoPickerResult>` |
+| `PhotosClipResolver.depthMap(from:)` *(v0.6)* | Async depth `CVPixelBuffer?` for iPhone 12+ Live Photos (disparity / depth / matte aux) |
 | `PhotosClipError` | Typed errors for permissions, missing media, iCloud failures, non-Live-Photo asset |
 
 ## Roadmap
 
-See [ROADMAP.md](ROADMAP.md). Shipped: video + image resolution (v0.1), Live Photo (v0.2), PhotosUI `PhotoPicker` (v0.3), metadata + overlay helpers (v0.4), slow-motion preservation + album asset listing (v0.5). Cycle considered feature-complete pending kadr v1.0.
+See [ROADMAP.md](ROADMAP.md). Shipped: video + image resolution (v0.1), Live Photo (v0.2), PhotosUI `PhotoPicker` (v0.3), metadata + overlay helpers (v0.4), slow-motion preservation + album asset listing (v0.5), HDR-aware resolution + iOS 17 picker async results + Live Photos depth extraction (v0.6). Cycle considered feature-complete pending kadr v1.0.
 
 ## Installation
 
 ```swift
-.package(url: "https://github.com/SteliyanH/kadr-photos.git", from: "0.5.0"),
+.package(url: "https://github.com/SteliyanH/kadr-photos.git", from: "0.6.0"),
 ```
 
 Add `KadrPhotos` to your target's dependencies. `Kadr` is pulled in transitively (≥ `0.9.2`).

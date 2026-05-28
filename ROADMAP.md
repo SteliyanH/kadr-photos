@@ -52,7 +52,7 @@ Two additions from a final value-vs-complexity audit. Pure additive — every v0
 
 Cycle considered feature-complete pending kadr v1.0.
 
-## v0.6.0 — HDR-aware resolution + iOS 17 picker async sequence *(planned)*
+## v0.6.0 — HDR-aware resolution + iOS 17 picker async sequence ✓ shipped
 
 Reopened cycle. v0.5 covered every common PHAsset resolution path (video / image / Live Photo / slow-motion / album listing). v0.6 adds the surfaces that have come up downstream now that real users hit them. All additive — every v0.5 call site compiles unchanged. Three additions:
 
@@ -71,6 +71,7 @@ Three tiers + release prep. Pairs with **kadr-reels-studio v0.8.x** (HDR badge i
 | 0.3.0 | ≥ 0.9.2 |
 | 0.4.0 | ≥ 0.9.2 |
 | 0.5.0 | ≥ 0.9.2 |
+| 0.6.0 | ≥ 0.9.2 |
 
 ## Contributing
 
