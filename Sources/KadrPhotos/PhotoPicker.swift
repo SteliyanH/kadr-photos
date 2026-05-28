@@ -33,19 +33,29 @@ import AppKit
 @available(iOS 16, macOS 13, visionOS 1, *)
 public struct PhotoPicker: View {
 
-    private let selection: Binding<[PhotoPickerResult]>
-    private let configuration: Configuration
+    internal enum Delivery {
+        case binding(Binding<[PhotoPickerResult]>)
+        case asyncStream(AsyncResultsSink)
+    }
+
+    internal let delivery: Delivery
+    internal let configuration: Configuration
 
     public init(
         selection: Binding<[PhotoPickerResult]>,
         configuration: Configuration = .default
     ) {
-        self.selection = selection
+        self.delivery = .binding(selection)
+        self.configuration = configuration
+    }
+
+    internal init(asyncSink: AsyncResultsSink, configuration: Configuration) {
+        self.delivery = .asyncStream(asyncSink)
         self.configuration = configuration
     }
 
     public var body: some View {
-        Bridge(selection: selection, configuration: configuration)
+        Bridge(delivery: delivery, configuration: configuration)
     }
 }
 
@@ -153,11 +163,11 @@ extension PhotoPicker {
 
 @available(iOS 16, visionOS 1, *)
 private struct Bridge: UIViewControllerRepresentable {
-    let selection: Binding<[PhotoPickerResult]>
+    let delivery: PhotoPicker.Delivery
     let configuration: PhotoPicker.Configuration
 
     func makeCoordinator() -> Coordinator {
-        Coordinator(selection: selection)
+        Coordinator(delivery: delivery)
     }
 
     func makeUIViewController(context: Context) -> PHPickerViewController {
@@ -175,17 +185,17 @@ private struct Bridge: UIViewControllerRepresentable {
 @available(iOS 16, visionOS 1, *)
 @MainActor
 private final class Coordinator: NSObject, PHPickerViewControllerDelegate {
-    private let selection: Binding<[PhotoPickerResult]>
+    private let delivery: PhotoPicker.Delivery
 
-    init(selection: Binding<[PhotoPickerResult]>) {
-        self.selection = selection
+    init(delivery: PhotoPicker.Delivery) {
+        self.delivery = delivery
     }
 
     nonisolated func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
         let mapped = PhotoPicker.mapResults(results)
-        let binding = selection
+        let delivery = self.delivery
         Task { @MainActor in
-            binding.wrappedValue = mapped
+            PhotoPicker.deliver(mapped, via: delivery)
             picker.dismiss(animated: true)
         }
     }
@@ -195,11 +205,11 @@ private final class Coordinator: NSObject, PHPickerViewControllerDelegate {
 
 @available(macOS 13, *)
 private struct Bridge: NSViewControllerRepresentable {
-    let selection: Binding<[PhotoPickerResult]>
+    let delivery: PhotoPicker.Delivery
     let configuration: PhotoPicker.Configuration
 
     func makeCoordinator() -> Coordinator {
-        Coordinator(selection: selection)
+        Coordinator(delivery: delivery)
     }
 
     func makeNSViewController(context: Context) -> PHPickerViewController {
@@ -217,17 +227,17 @@ private struct Bridge: NSViewControllerRepresentable {
 @available(macOS 13, *)
 @MainActor
 private final class Coordinator: NSObject, PHPickerViewControllerDelegate {
-    private let selection: Binding<[PhotoPickerResult]>
+    private let delivery: PhotoPicker.Delivery
 
-    init(selection: Binding<[PhotoPickerResult]>) {
-        self.selection = selection
+    init(delivery: PhotoPicker.Delivery) {
+        self.delivery = delivery
     }
 
     nonisolated func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
         let mapped = PhotoPicker.mapResults(results)
-        let binding = selection
+        let delivery = self.delivery
         Task { @MainActor in
-            binding.wrappedValue = mapped
+            PhotoPicker.deliver(mapped, via: delivery)
             picker.dismiss(true)
         }
     }
