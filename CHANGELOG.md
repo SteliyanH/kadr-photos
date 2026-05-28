@@ -4,6 +4,26 @@ All notable changes to KadrPhotos will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/), and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.6.0] - 2026-05-28
+
+Reopened cycle — three resolution-side surfaces driven by downstream consumers: HDR / Dolby Vision metadata read, an iOS 17 async-results overload on `PhotoPicker`, and Live Photos depth-channel extraction. Pure additive — every v0.5 call site compiles unchanged. Kadr floor stays at **0.9.2**.
+
+### Added
+
+- **`PhotosClipResolver.videoHDRMetadata(of:)`** — async; reads the asset's transfer function + color primaries + color matrix and detects Dolby Vision via codec FourCC, without pulling the full media. Pairs with **kadr-pro** for the export side; the resolution side stays free so consumers can detect-and-route ("this is HDR" without "this exports HDR"). `VideoHDRMetadata` value type carries the result.
+- **`PhotoPicker(configuration:iOS17AsyncResults:)`** — iOS 17 / macOS 14 / visionOS 1 initializer that delivers picked items as an `AsyncStream<PhotoPickerResult>`; caller iterates with `for await`. The iOS 16 closure / binding path stays for the deployment floor. Internally `PhotoPicker` now stores a `Delivery` enum (binding vs. asyncStream) and dispatches through `PhotoPicker.deliver(_:via:)`.
+- **`PhotosClipResolver.depthMap(from:)`** — async; returns `CVPixelBuffer?` for iPhone 12+ Live Photos carrying disparity / depth / portrait-effects-matte auxiliary data. Detection-only — returns `nil` for any asset that isn't depth-bearing (non-Live-Photo, missing aux, iCloud unreachable, decode failure). Aux-type preference: disparity → depth → matte. Vision-side cutout / segmentation stays in kadr-pro.
+
+### Tests
+
+- 24 new tests across `VideoHDRMetadataTests` (12), `PhotoPickerAsyncResultsTests` (4), `DepthExtractionTests` (8). Suite total: 80.
+
+### Notes
+
+- The "iOS 17 PHPicker.results AsyncSequence" framing in the planning doc was aspirational — `PHPickerViewController` still uses its delegate. The new overload wraps the delegate in an `AsyncStream` so callers get the `for await` ergonomics; behavior matches a single batched delivery on dismiss.
+- Depth extraction is best-effort: any failure path (auth, iCloud, decode) collapses to `nil`. Callers branch on presence; no thrown errors. The free-vs-premium line stays clean — we *expose* the depth buffer, kadr-pro *uses* it.
+- HDR detection covers HDR10 / HLG transfer functions plus Dolby Vision profiles via codec FourCC. Color-space conversion is explicitly out of scope (kadr-pro).
+
 ## [0.5.0] - 2026-05-03
 
 Slow-motion video preservation + programmatic album asset listing. Pure additive — every v0.4 call site compiles unchanged. Kadr floor stays at **0.9.2**.
