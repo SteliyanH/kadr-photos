@@ -33,7 +33,6 @@ internal final class AsyncResultsSink: @unchecked Sendable {
 
 // MARK: - Delivery dispatch
 
-@available(iOS 16, macOS 13, visionOS 1, *)
 extension PhotoPicker {
 
     @MainActor
@@ -57,8 +56,8 @@ extension PhotoPicker {
     /// closure receives the stream synchronously when the view is created; iterate
     /// with `for await`. The stream finishes when the user dismisses the picker.
     ///
-    /// The iOS 16 closure path stays for the platform floor — pick this overload
-    /// when iOS 17 is the deployment minimum.
+    /// Prefer this `AsyncStream` overload for `for await` iteration over picked
+    /// results.
     ///
     /// ```swift
     /// PhotoPicker(configuration: .init(selectionLimit: 5)) { results in

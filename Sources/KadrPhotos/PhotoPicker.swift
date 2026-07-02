@@ -30,7 +30,6 @@ import AppKit
 ///         }
 /// }
 /// ```
-@available(iOS 16, macOS 13, visionOS 1, *)
 public struct PhotoPicker: View {
 
     internal enum Delivery {
@@ -61,7 +60,6 @@ public struct PhotoPicker: View {
 
 // MARK: - Configuration
 
-@available(iOS 16, macOS 13, visionOS 1, *)
 extension PhotoPicker {
 
     /// Tuning options for ``PhotoPicker``.
@@ -128,7 +126,6 @@ extension PhotoPicker {
 
 // MARK: - Pure helpers
 
-@available(iOS 16, macOS 13, visionOS 1, *)
 extension PhotoPicker {
 
     /// Build the underlying `PHPickerConfiguration` from a kadr-side ``Configuration``.
@@ -161,7 +158,6 @@ extension PhotoPicker {
 
 #if canImport(UIKit)
 
-@available(iOS 16, visionOS 1, *)
 private struct Bridge: UIViewControllerRepresentable {
     let delivery: PhotoPicker.Delivery
     let configuration: PhotoPicker.Configuration
@@ -182,7 +178,6 @@ private struct Bridge: UIViewControllerRepresentable {
     }
 }
 
-@available(iOS 16, visionOS 1, *)
 @MainActor
 private final class Coordinator: NSObject, PHPickerViewControllerDelegate {
     private let delivery: PhotoPicker.Delivery
@@ -203,7 +198,6 @@ private final class Coordinator: NSObject, PHPickerViewControllerDelegate {
 
 #elseif canImport(AppKit)
 
-@available(macOS 13, *)
 private struct Bridge: NSViewControllerRepresentable {
     let delivery: PhotoPicker.Delivery
     let configuration: PhotoPicker.Configuration
@@ -224,7 +218,6 @@ private struct Bridge: NSViewControllerRepresentable {
     }
 }
 
-@available(macOS 13, *)
 @MainActor
 private final class Coordinator: NSObject, PHPickerViewControllerDelegate {
     private let delivery: PhotoPicker.Delivery
