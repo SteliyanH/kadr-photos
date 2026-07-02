@@ -17,7 +17,7 @@ struct SlowMotionTests {
 
     @Test func slowMotionSpeed240fpsSourceClassicQuarter() {
         // The classic iOS Photos slow-mo: 240 fps source rendered at 60 fps
-        // playback → consumer applies `clip.speed(0.25)`.
+        // playback → consumer applies `clip.speed(.flat(0.25))`.
         let speed = PhotosClipResolver.slowMotionSpeed(
             originalFrameRate: 240,
             playbackFrameRate: 60
