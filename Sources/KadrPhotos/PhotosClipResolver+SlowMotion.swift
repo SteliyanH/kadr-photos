@@ -19,7 +19,7 @@ extension PhotosClipResolver {
     /// kills the slow-motion treatment. This entry point swaps in
     /// `AVAssetExportPresetPassthrough` so the source's native frame rate
     /// survives, then surfaces a `VideoClip` the consumer can speed-control
-    /// downstream (e.g. `clip.speed(0.25)` to play 240 fps source at 60 fps
+    /// downstream (e.g. `clip.speed(.flat(0.25))` to play 240 fps source at 60 fps
     /// for the classic 8× slow effect).
     ///
     /// - Parameters:
@@ -34,8 +34,8 @@ extension PhotosClipResolver {
     ///   - progress: Optional iCloud-download progress callback.
     ///
     /// - Returns: A `VideoClip` whose `url` points to a temp `.mp4` file
-    ///   carrying the original 60 / 120 / 240 fps source. Apply `.speed(_:)`
-    ///   or `.speed(curve:)` to render the slow-motion playback.
+    ///   carrying the original 60 / 120 / 240 fps source. Apply `.speed(.flat(_:))`
+    ///   or `.speed(.curved(_:))` to render the slow-motion playback.
     public static func slowMotion(
         asset: PHAsset,
         options: Options = .default,
@@ -54,7 +54,7 @@ extension PhotosClipResolver {
 
     /// Read the nominal frame rate of a video `PHAsset`. Useful when deciding
     /// the speed multiplier for a slow-motion clip — e.g. a 240 fps source
-    /// played at `clip.speed(60.0 / 240.0)` reproduces the iOS Photos
+    /// played at `clip.speed(.flat(60.0 / 240.0))` reproduces the iOS Photos
     /// slow-motion-region playback rate of 60 fps.
     ///
     /// Issues an iCloud-download request for the underlying `AVAsset` if the

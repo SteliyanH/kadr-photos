@@ -52,6 +52,10 @@ Two additions from a final value-vs-complexity audit. Pure additive — every v0
 
 Cycle considered feature-complete pending kadr v1.0.
 
+## v0.7.0 — iOS 17 platform floor ✓ shipped
+
+Mechanical floor bump to **iOS 17 / macOS 14 / visionOS 1** (`Package.swift` platforms + Kadr dependency floor → ≥ 0.15.0). Required because a package with an iOS 16 floor can't depend on Kadr 0.15 (iOS 17). Dropped 8 redundant `@available(iOS 16…)` annotations and refreshed stale docstrings (Kadr's removed `speed(_:)` / `speed(curve:)` → `Speed` enum form; picker floor note). No code or behavior change. Part of the coordinated ecosystem iOS 17 move (kadr v0.15 / kadr-ui v0.12 / kadr-captions v0.8 / kadr-photos v0.7 / reels-studio `@Observable`). Consumers needing iOS 16 stay on `0.6.x`. 80 tests unchanged.
+
 ## v0.6.0 — HDR-aware resolution + iOS 17 picker async sequence ✓ shipped
 
 Reopened cycle. v0.5 covered every common PHAsset resolution path (video / image / Live Photo / slow-motion / album listing). v0.6 adds the surfaces that have come up downstream now that real users hit them. All additive — every v0.5 call site compiles unchanged. Three additions:

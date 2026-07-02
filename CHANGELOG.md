@@ -4,6 +4,26 @@ All notable changes to KadrPhotos will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/), and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.7.0] - 2026-07-02
+
+Platform floor raised to **iOS 17 / macOS 14 / visionOS 1** (tvOS still excluded — `Photos.framework` is unavailable there) as part of the coordinated ecosystem move to the iOS 17 baseline. Required because a package with an iOS 16 floor can't depend on Kadr 0.15 (iOS 17). No behavior change.
+
+### Changed
+
+- **`Package.swift` platforms** → `.iOS(.v17)` / `.macOS(.v14)` / `.visionOS(.v1)` (was iOS 16 / macOS 13); **Kadr dependency floor → ≥ 0.15.0** (was 0.9.2).
+
+### Removed
+
+- 8 now-redundant `@available(iOS 16 / macOS 13, …)` annotations across the sources — the package floor already exceeds them.
+
+### Fixed
+
+- Updated stale docstrings referencing Kadr's removed `speed(_:)` / `speed(curve:)` overloads (removed in Kadr 0.14) to the `Speed` enum form (`.speed(.flat(_:))` / `.speed(.curved(_:))`), and corrected the "iOS 16 closure path" picker note now that iOS 17 is the floor. No code change — the references were documentation only.
+
+### Compatibility
+
+Requires **Kadr ≥ 0.15.0**. Consumers needing the iOS 16 floor stay on the **0.6.x** line. Suite unchanged (80 tests, 0 failures).
+
 ## [0.6.0] - 2026-05-28
 
 Reopened cycle — three resolution-side surfaces driven by downstream consumers: HDR / Dolby Vision metadata read, an iOS 17 async-results overload on `PhotoPicker`, and Live Photos depth-channel extraction. Pure additive — every v0.5 call site compiles unchanged. Kadr floor stays at **0.9.2**.
