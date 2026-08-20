@@ -1,0 +1,13 @@
+# Opts this package in to Swift Package Index documentation hosting.
+#
+# `platform: ios` is deliberate. KadrPhotos links Photos / PhotosUI and
+# PhotoPicker wraps PHPickerViewController, so the iOS slice is the one that
+# represents this package. Building documentation on the default macOS pair
+# would document a narrower surface than consumers actually use.
+#
+# Validate changes at https://swiftpackageindex.com/validate-spi-manifest
+version: 1
+builder:
+  configs:
+    - platform: ios
+      documentation_targets: [KadrPhotos]
