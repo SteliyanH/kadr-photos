@@ -13,7 +13,7 @@ let package = Package(
         .library(name: "KadrPhotos", targets: ["KadrPhotos"]),
     ],
     dependencies: [
-        .package(url: "https://github.com/SteliyanH/kadr.git", .upToNextMinor(from: "0.15.0")),
+        .package(url: "https://github.com/SteliyanH/kadr.git", .upToNextMinor(from: "0.17.0")),
     ],
     targets: [
         .target(
