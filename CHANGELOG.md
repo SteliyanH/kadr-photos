@@ -4,6 +4,29 @@ All notable changes to KadrPhotos will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/), and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.8.0] - 2026-08-21
+
+Error messages a person can read. Minor rather than patch: `PhotosClipError`
+gains a protocol conformance it did not have, and `localizedDescription`
+changes observably.
+
+### Added
+
+- **`PhotosClipError` conforms to `LocalizedError`.** These reach people more
+  often than most errors in the family, because they happen while someone is
+  actively waiting for a picker to produce something.
+
+  Two cases are worded deliberately rather than mechanically. `unauthorized`
+  points at Settings, because it is a decision the person made and nothing the
+  app can retry. `iCloudDownload` speaks about the connection rather than the
+  media, because implying a corrupt file would send someone hunting for a
+  problem that does not exist. Media kinds read as English inside a sentence
+  rather than leaking case names.
+
+### Compatibility
+
+Requires kadr >= 0.16.0.
+
 ## [0.7.1] - 2026-08-21
 
 Documentation and dependency hygiene. No API or behaviour change.
