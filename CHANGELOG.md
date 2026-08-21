@@ -4,6 +4,19 @@ All notable changes to KadrPhotos will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/), and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.7.1] - 2026-08-21
+
+Documentation and dependency hygiene. No API or behaviour change.
+
+### Documentation
+
+- **Added a DocC catalog.** It leads with the question a reader arrives with — why this is a separate package — and then names the work it absorbs: an asset may live in iCloud rather than on device, a Live Photo splits into motion and still resources, a slow-motion capture hides its real frame rate. None of that is visible from a list of types, and it is what justifies the `Photos` / `PhotosUI` dependency kadr core deliberately avoids.
+- **Added `.spi.yml`**, pinned to `platform: ios` rather than the default macOS pair: this package links `Photos` / `PhotosUI` and `PhotoPicker` wraps `PHPickerViewController`, so documenting the macOS slice would describe a narrower surface than consumers use. Both slices were verified to build before pinning.
+
+### Changed
+
+- **The kadr dependency is pinned `.upToNextMinor`.** `from:` is `.upToNextMajor` and SwiftPM does not special-case `0.x`, so the previous range accepted every future 0.x release of kadr including breaking ones.
+
 ## [0.7.0] - 2026-07-02
 
 Platform floor raised to **iOS 17 / macOS 14 / visionOS 1** (tvOS still excluded — `Photos.framework` is unavailable there) as part of the coordinated ecosystem move to the iOS 17 baseline. Required because a package with an iOS 16 floor can't depend on Kadr 0.15 (iOS 17). No behavior change.
