@@ -4,6 +4,25 @@ All notable changes to KadrPhotos will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/), and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.9.0] - 2026-08-22
+
+Adopts kadr 0.17.0, and corrects a false statement in 0.8.0's notes.
+
+### Changed
+
+- **kadr floor raised to `0.17.0`** (from `0.15.0`). The pin is
+  `.upToNextMinor`, so a kadr minor is picked up deliberately rather than
+  automatically. Brings kadr's `LocalizedError` conformance, so an engine
+  failure surfaced through this package reads as a sentence.
+
+### Corrected
+
+- **0.8.0's notes claimed "Requires kadr >= 0.16.0". That was wrong.** The
+  manifest pinned `.upToNextMinor(from: "0.15.0")`, which resolves
+  `>=0.15.0, <0.16.0` — so 0.8.0 neither required nor could resolve kadr 0.16.0.
+  Nothing in 0.8.0 depended on it; the line was written in error and is
+  corrected here rather than by rewriting a released entry.
+
 ## [0.8.0] - 2026-08-21
 
 Error messages a person can read. Minor rather than patch: `PhotosClipError`
