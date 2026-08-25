@@ -56,7 +56,7 @@ let video = Video {
 
 ## Roadmap
 
-See [ROADMAP.md](ROADMAP.md). Shipped: video + image resolution (v0.1), Live Photo (v0.2), PhotosUI `PhotoPicker` (v0.3), metadata + overlay helpers (v0.4), slow-motion preservation + album asset listing (v0.5), HDR-aware resolution + iOS 17 picker async results + Live Photos depth extraction (v0.6). Cycle considered feature-complete pending kadr v1.0.
+See [ROADMAP.md](ROADMAP.md). Shipped: video + image resolution (v0.1), Live Photo (v0.2), PhotosUI `PhotoPicker` (v0.3), metadata + overlay helpers (v0.4), slow-motion preservation + album asset listing (v0.5), HDR-aware resolution + iOS 17 picker async results + Live Photos depth extraction (v0.6), iOS 17 platform floor (v0.7.0), DocC catalogue + `.upToNextMinor` pinning (v0.7.1), `LocalizedError` conformance (v0.8.0), kadr 0.17 adoption (v0.9.0). Resolution surface is feature-complete; v1.0 tracks kadr v1.0.
 
 ## Installation
 
