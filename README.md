@@ -61,10 +61,12 @@ See [ROADMAP.md](ROADMAP.md). Shipped: video + image resolution (v0.1), Live Pho
 ## Installation
 
 ```swift
-.package(url: "https://github.com/SteliyanH/kadr-photos.git", from: "0.6.0"),
+.package(url: "https://github.com/SteliyanH/kadr-photos.git", .upToNextMinor(from: "0.9.0")),
 ```
 
-Add `KadrPhotos` to your target's dependencies. `Kadr` is pulled in transitively (≥ `0.9.2`).
+Add `KadrPhotos` to your target's dependencies. `Kadr` is pulled in transitively — 0.9.x resolves `>=0.17.0, <0.18.0`.
+
+> **Use `.upToNextMinor`, not `from:`.** `from:` means `.upToNextMajor`, and SwiftPM does not special-case `0.x` — so `from: "0.9.0"` would accept every future 0.x release including breaking ones. This package's own kadr dependency is pinned the same way, because kadr's minors do break: 0.15.0 raised the platform floor.
 
 **Required entitlement:** `NSPhotoLibraryUsageDescription` in your app's Info.plist for read access to the user's photo library. Apps using `PHPhotoLibrary.requestAuthorization` to write to the library also need `NSPhotoLibraryAddUsageDescription`.
 
