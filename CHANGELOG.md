@@ -4,6 +4,21 @@ All notable changes to KadrPhotos will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/), and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.10.0] - 2026-08-27
+
+Adopts kadr 0.20.0.
+
+### Changed
+
+- **kadr floor raised to `0.20.0`** (from `0.17.0`), for the same reason as the
+  rest of the family: the pins are `.upToNextMinor`, so each adapter accepts one
+  kadr minor, and the four adapters had drifted onto three different ones. **No
+  single kadr version satisfied them all**, so an app depending on the family had
+  no resolvable dependency graph at all.
+
+  Nothing in kadr 0.18–0.20 is surface this package consumes. The bump exists so
+  the family composes.
+
 ## [0.9.0] - 2026-08-22
 
 Adopts kadr 0.17.0, and corrects a false statement in 0.8.0's notes.
