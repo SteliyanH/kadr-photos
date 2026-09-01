@@ -1,11 +1,14 @@
 # KadrPhotos
 
-[![Swift 6.0](https://img.shields.io/badge/Swift-6.0-orange.svg)](https://swift.org)
-[![Platforms](https://img.shields.io/badge/Platforms-iOS%2017+%20|%20macOS%2014+%20|%20visionOS%201+-blue.svg)](https://developer.apple.com)
+[![CI](https://github.com/SteliyanH/kadr-photos/actions/workflows/ci.yml/badge.svg)](https://github.com/SteliyanH/kadr-photos/actions/workflows/ci.yml)
+[![Swift versions](https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2FSteliyanH%2Fkadr-photos%2Fbadge%3Ftype%3Dswift-versions)](https://swiftpackageindex.com/SteliyanH/kadr-photos)
+[![Platforms](https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2FSteliyanH%2Fkadr-photos%2Fbadge%3Ftype%3Dplatforms)](https://swiftpackageindex.com/SteliyanH/kadr-photos)
 [![License](https://img.shields.io/badge/License-Apache%202.0-green.svg)](LICENSE)
 [![Sponsor](https://img.shields.io/badge/Sponsor-Buy%20me%20a%20coffee-FFDD00?logo=buymeacoffee&logoColor=black)](https://buymeacoffee.com/steliyanh)
 
 **Photos library integration for [Kadr](https://github.com/SteliyanH/kadr) — resolve `PHAsset` videos and stills into kadr clip types, with iCloud download progress reporting.**
+
+**[API documentation →](https://swiftpackageindex.com/SteliyanH/kadr-photos/documentation)**  ·  built and hosted by the Swift Package Index for every release.
 
 KadrPhotos consumes kadr's `VideoClip` / `ImageClip` types and bridges them to the `Photos` / `PhotosUI` frameworks. Lives in its own package because kadr core deliberately avoids those frameworks.
 
@@ -61,18 +64,31 @@ See [ROADMAP.md](ROADMAP.md). Shipped: video + image resolution (v0.1), Live Pho
 ## Installation
 
 ```swift
-.package(url: "https://github.com/SteliyanH/kadr-photos.git", .upToNextMinor(from: "0.9.0")),
+.package(url: "https://github.com/SteliyanH/kadr-photos.git", .upToNextMinor(from: "0.11.0")),
 ```
 
 Add `KadrPhotos` to your target's dependencies. `Kadr` is pulled in transitively — 0.9.x resolves `>=0.17.0, <0.18.0`.
 
-> **Use `.upToNextMinor`, not `from:`.** `from:` means `.upToNextMajor`, and SwiftPM does not special-case `0.x` — so `from: "0.9.0"` would accept every future 0.x release including breaking ones. This package's own kadr dependency is pinned the same way, because kadr's minors do break: 0.15.0 raised the platform floor.
+> **Use `.upToNextMinor`, not `from:`.** `from:` means `.upToNextMajor`, and SwiftPM does not special-case `0.x` — so `from: "0.11.0"` would accept every future 0.x release including breaking ones. This package's own kadr dependency is pinned the same way, because kadr's minors do break: 0.15.0 raised the platform floor.
 
 **Required entitlement:** `NSPhotoLibraryUsageDescription` in your app's Info.plist for read access to the user's photo library. Apps using `PHPhotoLibrary.requestAuthorization` to write to the library also need `NSPhotoLibraryAddUsageDescription`.
 
 ## Platform support
 
 `Photos.framework` is available on iOS 16+, macOS 13+, and visionOS 1+. **tvOS is excluded** — Apple does not ship the Photos framework on tvOS.
+
+## The kadr ecosystem
+
+| Package | Purpose |
+|---|---|
+| [`kadr`](https://github.com/SteliyanH/kadr) | The engine. Declarative video composition and export. |
+| [`kadr-ui`](https://github.com/SteliyanH/kadr-ui) | SwiftUI components — preview, timeline, transport, inspector, keyframe editor. |
+| [`kadr-persistence`](https://github.com/SteliyanH/kadr-persistence) | Save a composition to a file and open it again. |
+| [`kadr-audio`](https://github.com/SteliyanH/kadr-audio) | Music library, voiceover recording, LUFS loudness. |
+| [`kadr-captions`](https://github.com/SteliyanH/kadr-captions) | SRT, VTT, iTT, ASS and SSA parsing and authoring. |
+| [`kadr-photos`](https://github.com/SteliyanH/kadr-photos) | Photos library integration. |
+
+And a reference application: [**Kadr Studio**](https://github.com/SteliyanH/kadr-reels-studio), a short-form vertical video editor built on all six.
 
 ## License
 
