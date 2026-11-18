@@ -1,6 +1,10 @@
 # Swift / SwiftPM
 .build/
-.swiftpm/
+.swiftpm/*
+# Except the shared KadrPhotos-Package scheme, which CI builds for iOS.
+!.swiftpm/xcode/
+.swiftpm/xcode/*
+!.swiftpm/xcode/xcshareddata/
 Package.resolved
 *.xcodeproj/xcuserdata/
 *.xcworkspace/xcuserdata/

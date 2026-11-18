@@ -59,23 +59,26 @@ let video = Video {
 
 ## Roadmap
 
-See [ROADMAP.md](ROADMAP.md). Shipped: video + image resolution (v0.1), Live Photo (v0.2), PhotosUI `PhotoPicker` (v0.3), metadata + overlay helpers (v0.4), slow-motion preservation + album asset listing (v0.5), HDR-aware resolution + iOS 17 picker async results + Live Photos depth extraction (v0.6), iOS 17 platform floor (v0.7.0), DocC catalogue + `.upToNextMinor` pinning (v0.7.1), `LocalizedError` conformance (v0.8.0), kadr 0.17 adoption (v0.9.0). Resolution surface is feature-complete; v1.0 tracks kadr v1.0.
+See [ROADMAP.md](ROADMAP.md). Shipped: video + image resolution (v0.1), Live Photo (v0.2), PhotosUI `PhotoPicker` (v0.3), metadata + overlay helpers (v0.4), slow-motion preservation + album asset listing (v0.5), HDR-aware resolution + iOS 17 picker async results + Live Photos depth extraction (v0.6), iOS 17 platform floor (v0.7.0), DocC catalogue + `.upToNextMinor` pinning (v0.7.1), `LocalizedError` conformance (v0.8.0), kadr 0.17 adoption (v0.9.0), kadr 0.20 adoption (v0.10.0), kadr 1.0 adoption with a `from:` pin (v0.11.0). The resolution surface is feature-complete; 1.0 is planned as an API-stability commitment rather than new capability.
 
 ## Installation
 
+<!-- readme-snippets: skip -->
 ```swift
 .package(url: "https://github.com/SteliyanH/kadr-photos.git", .upToNextMinor(from: "0.11.0")),
 ```
 
-Add `KadrPhotos` to your target's dependencies. `Kadr` is pulled in transitively — 0.9.x resolves `>=0.17.0, <0.18.0`.
+Add `KadrPhotos` to your target's dependencies. `Kadr` is pulled in transitively — 0.11.x accepts any kadr `1.x` from 1.0.0.
 
-> **Use `.upToNextMinor`, not `from:`.** `from:` means `.upToNextMajor`, and SwiftPM does not special-case `0.x` — so `from: "0.11.0"` would accept every future 0.x release including breaking ones. This package's own kadr dependency is pinned the same way, because kadr's minors do break: 0.15.0 raised the platform floor.
+> **Use `.upToNextMinor`, not `from:`.** `from:` means `.upToNextMajor`, and SwiftPM does not special-case `0.x` — so `from: "0.11.0"` would accept every future 0.x release including breaking ones. (This package's own kadr dependency uses `from: "1.0.0"`, because kadr is past 1.0 and its minors no longer break.)
 
-**Required entitlement:** `NSPhotoLibraryUsageDescription` in your app's Info.plist for read access to the user's photo library. Apps using `PHPhotoLibrary.requestAuthorization` to write to the library also need `NSPhotoLibraryAddUsageDescription`.
+**Required Info.plist key:** `NSPhotoLibraryUsageDescription`. Resolving media needs `.readWrite` authorization (full or limited) and throws `PhotosClipError.unauthorized` without it. KadrPhotos never asks for access itself, so call `PHPhotoLibrary.requestAuthorization(for: .readWrite)` from your app first. Apps that also write to the library need `NSPhotoLibraryAddUsageDescription`.
 
 ## Platform support
 
-`Photos.framework` is available on iOS 16+, macOS 13+, and visionOS 1+. **tvOS is excluded** — Apple does not ship the Photos framework on tvOS.
+iOS 17, macOS 14 and visionOS 1 or later. **tvOS is excluded** — Apple does not ship the Photos framework on tvOS.
+
+Requires Xcode 26 or later (Swift 6.2). This package's manifest declares Swift tools 6.0, but kadr, which it depends on, cannot be built with Xcode 16: the image types kadr stores are only `Sendable` in the Xcode 26 SDKs.
 
 ## The kadr ecosystem
 

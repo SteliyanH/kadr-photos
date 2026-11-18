@@ -26,6 +26,18 @@ let package = Package(
                 .swiftLanguageMode(.v6)
             ]
         ),
+        // Compiles the README's examples, so they cannot drift from the API.
+        // Tools/readme-snippets.sh generates Examples/ReadmeSnippets.swift from
+        // README.md; CI fails if that copy is stale. Built, never run.
+        .target(
+            name: "KadrPhotosExamples",
+            dependencies: [
+                "KadrPhotos",
+                .product(name: "Kadr", package: "kadr"),
+            ],
+            path: "Examples",
+            swiftSettings: [.swiftLanguageMode(.v6)]
+        ),
         .testTarget(
             name: "KadrPhotosTests",
             dependencies: ["KadrPhotos"]
