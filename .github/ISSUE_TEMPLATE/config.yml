@@ -1,0 +1,11 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Question about using kadr-photos
+    url: https://github.com/SteliyanH/kadr/discussions
+    about: Shared with the rest of the kadr ecosystem, so answers stay in one place.
+  - name: API documentation
+    url: https://swiftpackageindex.com/SteliyanH/kadr-photos/documentation
+    about: Built and hosted for every release.
+  - name: The engine
+    url: https://github.com/SteliyanH/kadr
+    about: Composition and export questions belong upstream.
