@@ -85,6 +85,14 @@ Minor rather than patch: `PhotosClipError` gains a protocol conformance and `loc
 - **kadr floor raised to `0.17.0`.** Brings kadr's `LocalizedError` conformance, so an engine failure surfaced through this package reads as a sentence.
 - **Corrected a false claim in 0.8.0's notes**, which stated "Requires kadr >= 0.16.0" while the manifest pinned `>=0.15.0, <0.16.0`.
 
+## v0.10.0 — Adopts kadr 0.20.0 ✓ shipped
+
+- **kadr floor raised to `0.20.0`.** The family's adapters pinned `.upToNextMinor` and had drifted onto three different kadr minors, so no single kadr version satisfied them all. Nothing in kadr 0.18–0.20 is surface this package consumes; the bump exists so the family composes.
+
+## v0.11.0 — Adopts kadr 1.0 ✓ shipped
+
+- **kadr pinned `from: "1.0.0"`** instead of `.upToNextMinor`. Every adapter now accepts all of kadr `1.x`, so the family no longer has to move in lockstep.
+
 ## v1.0.0 — Production Ready
 
 Tracks kadr v1.0. This package's resolution surface is feature-complete; 1.0 is the commitment, not new capability.
@@ -104,6 +112,12 @@ Tracks kadr v1.0. This package's resolution surface is feature-complete; 1.0 is 
 | 0.4.0 | ≥ 0.9.2 |
 | 0.5.0 | ≥ 0.9.2 |
 | 0.6.0 | ≥ 0.9.2 |
+| 0.7.0 | ≥ 0.15.0 |
+| 0.7.1 | 0.15.x |
+| 0.8.0 | 0.15.x |
+| 0.9.0 | 0.17.x |
+| 0.10.0 | 0.20.x |
+| 0.11.0 | ≥ 1.0.0, < 2.0.0 |
 
 ## Contributing
 

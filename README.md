@@ -78,7 +78,7 @@ Add `KadrPhotos` to your target's dependencies. `Kadr` is pulled in transitively
 
 iOS 17, macOS 14 and visionOS 1 or later. **tvOS is excluded** — Apple does not ship the Photos framework on tvOS.
 
-Requires Xcode 26 or later (Swift 6.2). This package's manifest declares Swift tools 6.0, but kadr, which it depends on, cannot be built with Xcode 16: the image types kadr stores are only `Sendable` in the Xcode 26 SDKs.
+Requires Xcode 26 or later (Swift 6.2), the same as kadr.
 
 ## The kadr ecosystem
 
