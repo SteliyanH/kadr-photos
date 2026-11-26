@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 
+## [0.11.1] - 2026-11-27
+
 ### Fixed
 
 - **`KadrPhotos.version` reports the release.** It said `"0.1.0-dev"` through

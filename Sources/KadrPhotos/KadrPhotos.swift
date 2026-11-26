@@ -10,5 +10,5 @@ import Kadr
 public enum KadrPhotos {
     /// The package's semantic version: the newest release in the CHANGELOG, which a
     /// test enforces.
-    public static let version = "0.11.0"
+    public static let version = "0.11.1"
 }

@@ -65,7 +65,7 @@ See [ROADMAP.md](ROADMAP.md). Shipped: video + image resolution (v0.1), Live Pho
 
 <!-- readme-snippets: skip -->
 ```swift
-.package(url: "https://github.com/SteliyanH/kadr-photos.git", .upToNextMinor(from: "0.11.0")),
+.package(url: "https://github.com/SteliyanH/kadr-photos.git", .upToNextMinor(from: "0.11.1")),
 ```
 
 Add `KadrPhotos` to your target's dependencies. `Kadr` is pulled in transitively — 0.11.x accepts any kadr `1.x` from 1.0.0.
