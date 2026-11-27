@@ -4,6 +4,27 @@ All notable changes to KadrPhotos will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/), and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [Unreleased]
+
+## [0.11.1] - 2026-11-27
+
+### Fixed
+
+- **`KadrPhotos.version` reports the release.** It said `"0.1.0-dev"` through
+  every release since 0.1.0. It now says `"0.11.0"`, and a test fails when it
+  doesn't match the newest release in this file.
+
+### Changed
+
+- **The manifest declares Swift tools 6.2**, the version kadr requires. It
+  said 6.0, which no toolchain could honour: kadr cannot be built before
+  Xcode 26. Nothing changes for anyone already building.
+
+### Documentation
+
+- **ROADMAP.md covers 0.10.0 and 0.11.0**, and its compatibility table runs
+  through 0.11.0; it stopped at 0.6.0.
+
 ## [0.11.0] - 2026-08-28
 
 Adopts kadr 1.0.

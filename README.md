@@ -65,7 +65,7 @@ See [ROADMAP.md](ROADMAP.md). Shipped: video + image resolution (v0.1), Live Pho
 
 <!-- readme-snippets: skip -->
 ```swift
-.package(url: "https://github.com/SteliyanH/kadr-photos.git", .upToNextMinor(from: "0.11.0")),
+.package(url: "https://github.com/SteliyanH/kadr-photos.git", .upToNextMinor(from: "0.11.1")),
 ```
 
 Add `KadrPhotos` to your target's dependencies. `Kadr` is pulled in transitively — 0.11.x accepts any kadr `1.x` from 1.0.0.
@@ -78,7 +78,7 @@ Add `KadrPhotos` to your target's dependencies. `Kadr` is pulled in transitively
 
 iOS 17, macOS 14 and visionOS 1 or later. **tvOS is excluded** — Apple does not ship the Photos framework on tvOS.
 
-Requires Xcode 26 or later (Swift 6.2). This package's manifest declares Swift tools 6.0, but kadr, which it depends on, cannot be built with Xcode 16: the image types kadr stores are only `Sendable` in the Xcode 26 SDKs.
+Requires Xcode 26 or later (Swift 6.2), the same as kadr.
 
 ## The kadr ecosystem
 
